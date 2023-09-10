@@ -10,7 +10,7 @@
         @didDismiss="setOpen(false)"
         class="toast"
     ></ion-toast>
-    <form @submit="submitForm" class="form-container" >
+    <form @submit="submitForm" class="form-container"  enctype="multipart/form-data">
 
       <ion-select v-model="selectedCategory" @ionChange="categoryChanged" placeholder="Категория" required>
         <ion-select-option :value="category.name" v-for="category in catalog" :key="category.name">{{ category.name }}
@@ -83,8 +83,8 @@
       <!-- Вывод выбранных изображений -->
       <div class="image-container">
         <div v-for="(image, index) in selectedImages" :key="index" class="image-item">
-          <p>{{ image.type }}</p>
-          <img :src="image.url" alt="Изображение" class="image">
+          <p>{{ types[index] }}</p>
+          <img :src="urls[index]" alt="Изображение" class="image">
         </div>
       </div>
 
@@ -127,6 +127,8 @@ const containerRow = ref('');
 const containerNumber = ref('');
 
 const selectedImages = ref([]);
+const types = ref([]);
+const urls = ref([]);
 
 const isOpen = ref(false);
 
@@ -147,22 +149,7 @@ const categoryChanged = () => {
   }
 };
 
-// const handleImageUpload = (imageType) => (event) => {
-//   const input = event.target;
-//
-//   if (input.files && input.files.length > 0) {
-//     for (let i = 0; i < input.files.length; i++) {
-//       const file = input.files[i];
-//       const imageUrl = URL.createObjectURL(file);
-//
-//       // Добавляем изображение в массив с соответствующим типом
-//       selectedImages.value.push({file, url: imageUrl, type: imageType});
-//     }
-//   }
-// };
-
 // При добавлении изображения, вы должны также добавить тип и URL в соответствующие массивы
-// Обновленная функция для обработки загрузки изображения
 const handleImageUpload = (imageType) => (event) => {
   const input = event.target;
 
@@ -171,15 +158,9 @@ const handleImageUpload = (imageType) => (event) => {
       const file = input.files[i];
       const imageUrl = URL.createObjectURL(file);
 
-      // Создаем объект для каждого изображения
-      const imageObject = {
-        file: file,
-        type: imageType,
-        url: imageUrl,
-      };
-
-      // Добавляем объект в массив
-      selectedImages.value.push(imageObject);
+      selectedImages.value.push(file);
+      types.value.push(imageType);
+      urls.value.push(imageUrl);
     }
   }
 };
@@ -195,33 +176,8 @@ const submitForm = async (event) => {
     return
   }
 
-  // const mainImages = selectedImages.value.filter(image => image.type === 'mainImage');
-  // const frontImages = selectedImages.value.filter(image => image.type === 'frontImage');
-  // const backImages = selectedImages.value.filter(image => image.type === 'backImage');
-  // const leftImages = selectedImages.value.filter(image => image.type === 'leftImage');
-  // const rightImages = selectedImages.value.filter(image => image.type === 'rightImage');
-  // const detail1Images = selectedImages.value.filter(image => image.type === 'detail1Image');
-  // const detail2Images = selectedImages.value.filter(image => image.type === 'detail2Image');
-  // const detail3Images = selectedImages.value.filter(image => image.type === 'detail3Image');
-  // const detail4Images = selectedImages.value.filter(image => image.type === 'detail4Image');
-  // const detail5Images = selectedImages.value.filter(image => image.type === 'detail5Image');
   const currentDate = new Date();
 
-  // const productData = {
-  //   user: userStore.state.userId,
-  //   selectedCategory: selectedCategory.value,
-  //   selectedSubcategory: selectedSubcategory.value,
-  //   productTitle: productTitle.value,
-  //   productDescription: productDescription.value,
-  //   selectedBazaar: selectedBazaar.value,
-  //   sellerPhone: sellerPhone.value,
-  //   containerRow: containerRow.value,
-  //   containerNumber: containerNumber.value,
-  //   selectedImages: selectedImages.value,
-  //   createdAt: currentDate,
-  // }
-
-  // Создаем объект для хранения всех данных
   const formData = new FormData();
   formData.append('user', userStore.state.userId);
   formData.append('selectedCategory', selectedCategory.value);
@@ -237,10 +193,15 @@ const submitForm = async (event) => {
     formData.append('updatedAt', currentDate);
   }
 
-// Добавляем массив изображений как JSON-строку
-  formData.append('selectedImages', JSON.stringify(selectedImages.value));
-  cardStore.dispatch('createNewCard', formData)
-}
+// Добавляем файлы
+  for (let i = 0; i < selectedImages.value.length; i++) {
+    formData.append('images', selectedImages.value[i]);
+    formData.append('types', types.value[i]);
+    formData.append('urls', urls.value[i]);
+  }
+
+  await cardStore.dispatch('createNewCard', formData);
+};
 
 </script>
 

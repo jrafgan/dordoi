@@ -22,7 +22,6 @@ export const store = createStore({
     mutations: {
         // Мутация для обновления данных пользователя
         setUserData(state, userData) {
-            console.log('set user data in action : ', userData);
             state.username = userData.user.username;
             state.email = userData.user.email;
             state.token = userData.token;
@@ -40,7 +39,6 @@ export const store = createStore({
         async initializeUser({ commit }) {
             try {
                 const kardar = loadAndDecryptFromLocalStorage(lsKey, jashyruunAchkych);
-                console.log('initialize started ...')
                 if (kardar) {
                     // Если есть токен и данные пользователя в Local Storage, инициализируем хранилище
                     await checkPostRequest(commit, {

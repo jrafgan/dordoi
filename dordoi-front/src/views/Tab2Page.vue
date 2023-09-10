@@ -18,5 +18,5 @@ import Authorize from '@/components/Authorize.vue';
 import Backoffice from "@/components/Backoffice.vue";
 
 const userStore = store;
-console.log('state : ', userStore.getters.getState)
+console.log('state : ', userStore.state)
 </script>

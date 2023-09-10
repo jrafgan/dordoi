@@ -49,7 +49,6 @@ export function postReqSuccess(data) {
         token: data.token
     };
     encryptAndSaveToLocalStorage(lsKey, jashyruunMaalymat, jashyruunAchkych);
-    console.log('userInitialized and saved ! : ')
 }
 
 export function postReqFailure(res) {
@@ -59,20 +58,14 @@ export function postReqFailure(res) {
 
 export async function checkPostRequest(commit, {endpoint, data, successCallback, errorCallback, mutation, token}) {
     try {
-        console.log('checkPostRequest received data : ', {endpoint, data, successCallback, errorCallback, token})
         const response = await postReq(endpoint, data, token);
         if (response.status === 200) {
             const responseData = response.data;
-            // if (endpoint.includes('users')) {
-            //     commit('setUserData', responseData);
-            // }
 
-            console.log('mutation : ', mutation);
             if (mutation) {
                 // Если указана мутация, вызываем ее
-                console.log('mutation : ', mutation);
                 commit(mutation, responseData);
-
+                console.log('mutation : ', mutation)
             }
             console.log('token : ', responseData.token);
             // Вызываем callback для успешного запроса

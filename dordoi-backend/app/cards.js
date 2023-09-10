@@ -48,32 +48,23 @@ router.get('/:id', auth, async (req, res) => {
 
 router.post('/', auth, upload.array('images'), async (req, res) => {
     try {
-        // Получаем данные о загруженных файлах, типах и URL из запроса
-
-        const types = req.body.types;
-        const urls = req.body.urls;
         const cardData = req.body;
+        const uploadedFiles = req.files;
 
-        const uploadedImages = JSON.parse(req.body.selectedImages);
-
-        // Создаем массив для хранения информации о загруженных фотографиях
+        console.log('req body : ', cardData);
+        console.log('req files : ', req.files);
+        // Проверяем, существует ли req.files и является ли это массивом
         const selectedImages = [];
 
-        // Перебираем каждое загруженное фото
-        for (let i = 0; i < uploadedImages.length; i++) {
-            const image = uploadedImages[i];
-            const type = image.type;
-            const url = image.url;
-
-            // Добавляем информацию о фото в массив
+        // Перебираем каждый загруженный файл и добавляем информацию о нем в массив
+        for (const file of uploadedFiles) {
             selectedImages.push({
-                type: type,
-                url: url,
-                fileName: image.file.name, // Сохраняем имя файла (может пригодиться)
+                type: file.fieldname, // Здесь можете указать тип файла, если он имеется
+                url: `${config.uploadPath}/${file.filename}`, // Путь к загруженному файлу в каталоге uploads
+                fileName: file.originalname, // Имя файла
             });
         }
 
-        // Создаем новую карточку с информацией о фотографиях
         const card = new Card({
             productTitle: cardData.productTitle,
             productDescription: cardData.productDescription,
@@ -84,9 +75,11 @@ router.post('/', auth, upload.array('images'), async (req, res) => {
             containerRow: cardData.containerRow,
             containerNumber: cardData.containerNumber,
             user: cardData.user,
-            selectedImages: selectedImages, // Передаем массив с данными о фотографиях
+            selectedImages: selectedImages,
+            types: cardData.types,
+            urls: cardData.urls,
             createdAt: cardData.createdAt,
-            updatedAt: cardData.updatedAt || null,
+            updatedAt: cardData.updatedAt || null
         });
 
         await card.save();
@@ -96,7 +89,7 @@ router.post('/', auth, upload.array('images'), async (req, res) => {
         const cards = await Card.find();
 
         // Отправляем новый токен на клиент
-        res.send({ token: newToken,  message: 'Card created!',  user, card });
+        res.send({ token: newToken,  message: 'Card created!',  user, cards });
     } catch (error) {
         console.error('Error:', error);
         res.status(400).send(error);

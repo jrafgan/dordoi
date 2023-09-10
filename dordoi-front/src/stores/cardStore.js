@@ -21,6 +21,7 @@ export const cardStore = createStore({
         },
         setAllCards(state, data) {
             state.allCards = data.cards;
+            console.log('card state : ', state);
         },
         setUserCards(state, data) {
             state.userCards = data.cards;
@@ -29,7 +30,6 @@ export const cardStore = createStore({
     actions: {
         async createNewCard({ commit }, cardData) {
             try {
-                console.log('card data before send : ', cardData)
                 // Обработайте ответ здесь
                 await checkPostRequest(commit, {
                     endpoint: 'cards/',
@@ -39,7 +39,7 @@ export const cardStore = createStore({
                     mutation: 'setAllCards',
                     token: userStore.state.token
                 });
-            } catch (error) {
+            } catch (e) {
                 // Обработайте ошибку здесь
             }
         },

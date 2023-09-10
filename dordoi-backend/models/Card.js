@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const imageSchema = new mongoose.Schema({
+    type: String,     // Тип файла
+    url: String,      // Путь к загруженному файлу
+    fileName: String, // Имя файла
+});
+
 const CardSchema = new Schema({
     productTitle: {
         type: String,
@@ -39,20 +45,9 @@ const CardSchema = new Schema({
         ref: 'User',
         required: true
     },
-    selectedImages: [{
-        file: {
-            type: String,
-            // required: true
-        },
-        url: {
-            type: String,
-            // required: true
-        },
-        type: {
-            type: String,
-            // required: true
-        }
-    }],
+    types: [{  type: String}],
+    urls: [{ type: String }],
+    selectedImages: [imageSchema],
     createdAt: {
         type: Date,
         default: Date.now, // Устанавливаем текущую дату при создании
