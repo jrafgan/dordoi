@@ -810,5 +810,15 @@ const catalog = [
         ]
     }
 ];
+const bazaarNames = [
+    {name: 'Дордой рынок'},
+    {name: 'Ошский рынок'},
+    {name: 'Аламединский'},
+    {name: 'Торговый центр'},
+    {name: 'Швейный цех'},
+];
+const jashyruunAchkych = 'kanaatandyrylbagandardansynarsyzby';
 
-module.exports = catalog;
+const lsKey = 'maalymat'
+
+export { catalog, bazaarNames, jashyruunAchkych, lsKey };

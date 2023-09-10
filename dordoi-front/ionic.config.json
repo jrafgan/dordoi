@@ -1,0 +1,7 @@
+{
+  "name": "dordoi-front",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}

@@ -4,8 +4,10 @@ const config = require('./config');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
-const session = require('express-session');
-const auth = require('./auth');
+const cards = require('./app/cards');
+// const ratings = require('./app/ratings');
+const users = require('./app/users');
+// const images = require('./app/images');
 
 const app = express();
 
@@ -16,27 +18,17 @@ app.use(express.json());
 app.use(express.static('public'));
 
 app.use(express.urlencoded({ extended: false }));
-app.use(session({
-    resave: false,
-    saveUninitialized: false,
-    secret: 'shhhh, very secret'
-}));
-
-app.use(function(req, res, next){
-    var err = req.session.error;
-    var msg = req.session.success;
-    delete req.session.error;
-    delete req.session.success;
-    res.locals.message = '';
-    if (err) res.locals.message = '<p class="msg error">' + err + '</p>';
-    if (msg) res.locals.message = '<p class="msg success">' + msg + '</p>';
-    next();
-});
 
 // Добавляем роуты из модуля auth
-app.use(auth);
+const port = 8003;
 
-if (!module.parent) {
-    app.listen(3000);
-    console.log('Express started on port 3000');
-}
+mongoose.connect(config.dbUrl, config.mongoOptions).then(() => {
+    app.use('/cards', cards);
+    // app.use('/ratings', ratings);
+    app.use('/users', users);
+    // app.use('/images', images);
+
+    app.listen(port, () => {
+        console.log(`Server started on ${port} port`);
+    });
+});

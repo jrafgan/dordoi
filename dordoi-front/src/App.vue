@@ -1,26 +1,32 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <ion-app>
+    <ion-router-outlet />
+  </ion-app>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
+<script setup>
+import { ref, onMounted } from 'vue';
+import { IonApp, IonRouterOutlet } from '@ionic/vue';
+import { store } from '@/stores/userStore'
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
+const userStore = store;
+const isFirstRun = ref(true);
+// Ваша функция, которая должна выполниться один раз
+const initializeApp = () => {
+  // Ваш код инициализации приложения
+  const isFirstRun = ref(true);
+  // После выполнения функции помечаем, что она была вызвана
+  isFirstRun.value = false;
+  userStore.dispatch('initializeUser')
+};
+
+// Хук onMounted вызывается после монтирования компонента
+onMounted(() => {
+  // Проверяем, была ли функция уже вызвана
+  if (isFirstRun.value) {
+    // Если нет, вызываем функцию
+    initializeApp();
   }
-}
-</script>
+});
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+</script>
