@@ -33,10 +33,9 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton, IonButton, IonItem, IonList, IonListHeader, IonLabel } from '@ionic/vue';
 import ExploreContainer from '@/components/ExploreContainer.vue';
 import { ref } from 'vue';
-
 const showCategories = ref(false);
 const showSubCategories = ref({});
-import { store } from '@/stores/userStore'; // Подставьте правильный путь к файлу с хранилищем
+import { store } from '@/stores/userStore';
 import { catalog }from '@/DataArr';
 
 const userStore = store;

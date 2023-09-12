@@ -1,14 +1,17 @@
 <template>
   <div class="card-container">
     <ion-card color="light" class="max-width-card" v-for="card in cards" :key="card.id">
-      <img alt="Silhouette of mountains" src="https://ionicframework.com/docs/img/demos/card-media.png" />
-      <ion-card-header>
-        <ion-card-title>Card Title</ion-card-title>
-        <ion-card-subtitle>Card Subtitle</ion-card-subtitle>
+      <div class="image_container">
+      <img v-if="card.selectedImages.length > 0" class="margin" alt="Silhouette of mountains" :src="card.selectedImages[0].url"/>
+      <img v-else alt="Silhouette of mountains" src="https://ionicframework.com/docs/img/demos/card-media.png"/>
+      </div>
+        <ion-card-header>
+        <ion-card-title>{{ card.productTitle }}</ion-card-title>
+        <ion-card-subtitle>Артикул: {{ card.sku}}</ion-card-subtitle>
       </ion-card-header>
 
       <ion-card-content>
-        Here's a small text description for the card content. Nothing more, nothing less.
+        {{ card.productDescription  }}
       </ion-card-content>
     </ion-card>
   </div>
@@ -16,20 +19,28 @@
 
 <script setup>
 import { IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle } from '@ionic/vue';
+import { computed } from 'vue';
+import { cardStore }  from '../stores/cardStore';
 
-const cards = [
-  { id: 1 },
-  { id: 2 },
-  { id: 3 },
-  { id: 4 },
-  { id: 5 },
-];
+const cards = computed(() => cardStore.getters.getAllCards);
+console.log('all cards : ', cards);
 </script>
 
 <style scoped>
 .max-width-card {
   max-width: 300px; /* Здесь можно указать желаемую максимальную ширину */
-  margin: 10px;
+  padding: 10px;
+}
+
+.image_container {
+  display: flex;
+  justify-content: center; /* Горизонтальное центрирование */
+  align-items: center;
+}
+
+.margin {
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .card-container {

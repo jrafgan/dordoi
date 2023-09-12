@@ -6,7 +6,7 @@ const authMiddl = require('../middleware/auth');
 const config = require('../config');
 
 const createToken = (userId) => {
-    return jwt.sign({ userId }, config.jwtSecret, { expiresIn: '1h' });
+    return jwt.sign({ userId }, config.jwtSecret, { expiresIn: '3h' });
 };
 
 router.post('/register', async (req, res) => {

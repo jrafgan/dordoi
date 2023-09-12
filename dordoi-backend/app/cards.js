@@ -8,6 +8,7 @@ const router = express.Router();
 const permit = require('../middleware/permit');
 const auth = require('../middleware/auth')
 const jwt = require("jsonwebtoken");
+const SKU = require("../models/SKU");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -21,10 +22,37 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 const createToken = (userId) => {
-    return jwt.sign({ userId }, config.jwtSecret, { expiresIn: '1h' });
+    return jwt.sign({ userId }, config.jwtSecret, { expiresIn: '3h' });
 };
 
-router.get('/', auth, async (req, res) => {
+async function uniqueSku(length) {
+    let sku = '';
+    let isUnique = false;
+
+    // Генерируем артикул до тех пор, пока не найдем уникальный
+    while (!isUnique) {
+        // sku = nanoid(12); // Генерируем случайный артикул из 12 символов
+
+        const characters = '0123456789';
+
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * characters.length);
+            sku += characters[randomIndex];
+        }
+
+        // Проверяем, есть ли артикул в базе данных
+        const existingSKU = await SKU.findOne({ sku });
+
+        if (!existingSKU) {
+            isUnique = true; // Артикул уникален
+        }
+        const yu = await SKU.find()
+        console.log('existing SKU : ', yu);
+    }
+    return sku;
+}
+
+router.get('/', async (req, res) => {
     try {
         const cards = await Card.find();
         res.send(cards);
@@ -50,6 +78,7 @@ router.post('/', auth, upload.array('images'), async (req, res) => {
     try {
         const cardData = req.body;
         const uploadedFiles = req.files;
+        let sku = await uniqueSku(12);
 
         console.log('req body : ', cardData);
         console.log('req files : ', req.files);
@@ -60,7 +89,7 @@ router.post('/', auth, upload.array('images'), async (req, res) => {
         for (const file of uploadedFiles) {
             selectedImages.push({
                 type: file.fieldname, // Здесь можете указать тип файла, если он имеется
-                url: `${config.uploadPath}/${file.filename}`, // Путь к загруженному файлу в каталоге uploads
+                url: `http://localhost:8003/uploads/${file.filename}`, // Путь к загруженному файлу в каталоге uploads
                 fileName: file.originalname, // Имя файла
             });
         }
@@ -77,7 +106,7 @@ router.post('/', auth, upload.array('images'), async (req, res) => {
             user: cardData.user,
             selectedImages: selectedImages,
             types: cardData.types,
-            urls: cardData.urls,
+            sku,
             createdAt: cardData.createdAt,
             updatedAt: cardData.updatedAt || null
         });
@@ -87,7 +116,10 @@ router.post('/', auth, upload.array('images'), async (req, res) => {
         const user = { _id: cardData.user }
         console.log('new card : ', card)
         const cards = await Card.find();
+        sku = new SKU({ sku });
 
+        // Сохраняем продукт в базе данных
+        await sku.save();
         // Отправляем новый токен на клиент
         res.send({ token: newToken,  message: 'Card created!',  user, cards });
     } catch (error) {

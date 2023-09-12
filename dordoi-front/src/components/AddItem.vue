@@ -128,7 +128,7 @@ const containerNumber = ref('');
 
 const selectedImages = ref([]);
 const types = ref([]);
-const urls = ref([]);
+const urls = ref([]); //todo это не надо отправлять на сервер
 
 const isOpen = ref(false);
 

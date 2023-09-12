@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const nanoid = require('nanoid');
 const config = require('../config');
-const Image = require('../models/Image');
+const Image = require('../models/SKU');
 const router = express.Router();
 const permit = require('../middleware/permit');
 

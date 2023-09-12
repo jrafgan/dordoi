@@ -5,7 +5,7 @@ import {
 
 } from "./loacalStorage";
 import { jashyruunAchkych, lsKey } from "../DataArr";
-import {checkPostRequest, postReqFailure, postReqSuccess} from "./api";
+import {sendRequest, reqFailure, reqSuccess} from "./api";
 
 export const store = createStore({
     state: {
@@ -41,11 +41,11 @@ export const store = createStore({
                 const kardar = loadAndDecryptFromLocalStorage(lsKey, jashyruunAchkych);
                 if (kardar) {
                     // Если есть токен и данные пользователя в Local Storage, инициализируем хранилище
-                    await checkPostRequest(commit, {
+                    await sendRequest(commit, {
                         endpoint: 'users/session',
                         data: {userId: kardar.userId },
-                        successCallback: postReqSuccess,
-                        errorCallback: postReqFailure,
+                        successCallback: reqSuccess,
+                        errorCallback: reqFailure,
                         mutation: 'setUserData',
                         token: kardar.token
                     });
@@ -57,12 +57,12 @@ export const store = createStore({
         },
         async register({ commit }, userData) {
             try {
-                await checkPostRequest(commit, {
+                await sendRequest(commit, {
                     endpoint: 'users/register',
                     data: userData,
                     token: null,
-                    successCallback: postReqSuccess,
-                    errorCallback: postReqFailure,
+                    successCallback: reqSuccess,
+                    errorCallback: reqFailure,
                     mutation: 'setUserData'
                 });
             } catch (error) {
@@ -73,11 +73,11 @@ export const store = createStore({
 
         async login({ commit }, userData) {
             try {
-                await checkPostRequest(commit, {
+                await sendRequest(commit, {
                     endpoint: 'users/login',
                     data: userData,
-                    successCallback: postReqSuccess,
-                    errorCallback: postReqFailure,
+                    successCallback: reqSuccess,
+                    errorCallback: reqFailure,
                     mutation: 'setUserData',
                     token: null
                 });

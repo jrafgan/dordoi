@@ -45,8 +45,11 @@ const CardSchema = new Schema({
         ref: 'User',
         required: true
     },
-    types: [{  type: String}],
-    urls: [{ type: String }],
+    types: [{ type: String}],
+    sku: {
+        type: String,
+        required: true
+    },
     selectedImages: [imageSchema],
     createdAt: {
         type: Date,

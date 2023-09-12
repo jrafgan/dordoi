@@ -1,6 +1,6 @@
 import { createStore } from "vuex";
 import axios from '../axios-api';
-import {checkPostRequest, postReqFailure, postReqSuccess} from "./api";
+import {sendRequest, reqFailure, reqSuccess} from "./api";
 import userStore from "./userStore";
 
 export const cardStore = createStore({
@@ -11,7 +11,7 @@ export const cardStore = createStore({
        },
     getters: {
         getState: (state) => state,
-        isLoggedIn: (state) => state.selectedCard,
+        getAllCards: (state) => state.allCards,
     },
     mutations: {
         // Мутация для обновления данных пользователя
@@ -20,8 +20,8 @@ export const cardStore = createStore({
 
         },
         setAllCards(state, data) {
-            state.allCards = data.cards;
-            console.log('card state : ', state);
+            state.allCards = data;
+            console.log('card state : ', state.allCards);
         },
         setUserCards(state, data) {
             state.userCards = data.cards;
@@ -31,11 +31,11 @@ export const cardStore = createStore({
         async createNewCard({ commit }, cardData) {
             try {
                 // Обработайте ответ здесь
-                await checkPostRequest(commit, {
+                await sendRequest(commit, {
                     endpoint: 'cards/',
                     data: cardData,
-                    successCallback: postReqSuccess,
-                    errorCallback: postReqFailure,
+                    successCallback: reqSuccess,
+                    errorCallback: reqFailure,
                     mutation: 'setAllCards',
                     token: userStore.state.token
                 });
@@ -43,9 +43,18 @@ export const cardStore = createStore({
                 // Обработайте ошибку здесь
             }
         },
-        async getNewCards() {
+        async getNewCards({ commit }) {
             try {
-                const res = await axios.get('ваш_адрес_запроса');
+                console.log('get new cards in action! ')
+                await sendRequest(commit, {
+                    method: 'GET',
+                    endpoint: 'cards/',
+                    data: null,
+                    successCallback: reqSuccess,
+                    errorCallback: reqFailure,
+                    mutation: 'setAllCards',
+                    token: undefined
+                });
                 // Обработайте ответ здесь
             } catch (error) {
                 // Обработайте ошибку здесь
