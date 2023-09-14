@@ -16,4 +16,18 @@ const authMiddl = jwt({
     }
 }).unless({ path: ['/public'] });
 
+// authMiddl.unless = function (options) {
+//     return function (req, res, next) {
+//         jwt(options)(req, res, function (err) {
+//             if (!err) {
+//                 // После успешной аутентификации, устанавливаем информацию о пользователе
+//                 // В данном примере, мы предполагаем, что информация о пользователе хранится в поле decoded
+//                 req.user = req.user || req.decoded;
+//                 console.log('req user : ', req.user);
+//             }
+//             next(err);
+//         });
+//     };
+// };
+
 module.exports = authMiddl;

@@ -5,12 +5,13 @@
     </ion-text>
     <ion-toast
         :is-open="isOpen"
-        message="Что-то не заполнили !"
-        :duration="5000"
+        message="Что-то пропустили !"
+        duration="5000"
         @didDismiss="setOpen(false)"
         class="toast"
+        color='warning'
     ></ion-toast>
-    <form @submit="submitForm" class="form-container"  enctype="multipart/form-data">
+    <form @submit="submitForm" class="form-container" enctype="multipart/form-data">
 
       <ion-select v-model="selectedCategory" @ionChange="categoryChanged" placeholder="Категория" required>
         <ion-select-option :value="category.name" v-for="category in catalog" :key="category.name">{{ category.name }}
@@ -58,6 +59,9 @@
       <ion-input v-model="containerNumber" class="input" label="Номер контейнера" label-placement="floating"
                  fill="clear"
                  placeholder="Номер контейнера" type="number" required></ion-input>
+      <ion-input v-model="price" class="input" label="Цена" label-placement="floating"
+                 fill="clear"
+                 placeholder="Цена в рублях" type="number" required></ion-input>
       <br/>
       <p>Главное фото</p>
       <input type="file" @change="handleImageUpload('Главное фото')($event)" accept="image/*">
@@ -97,7 +101,7 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
 import {catalog, bazaarNames} from '@/DataArr';
 import {
   IonContent,
@@ -110,8 +114,12 @@ import {
   IonSelect,
   IonSelectOption
 } from '@ionic/vue';
-import { store } from '@/stores/userStore';
-import { cardStore } from '@/stores/cardStore';
+import {store} from '@/stores/userStore';
+import {cardStore} from '@/stores/cardStore';
+import {useRouter} from 'vue-router';
+
+// Получение маршрутизатора
+const router = useRouter();
 
 const userStore = store;
 
@@ -125,6 +133,7 @@ const selectedBazaar = ref('');
 const sellerPhone = ref('');
 const containerRow = ref('');
 const containerNumber = ref('');
+const price = ref('');
 
 const selectedImages = ref([]);
 const types = ref([]);
@@ -188,6 +197,7 @@ const submitForm = async (event) => {
   formData.append('sellerPhone', sellerPhone.value);
   formData.append('containerRow', containerRow.value);
   formData.append('containerNumber', containerNumber.value);
+  formData.append('price', price.value);
 
   if (cardStore && cardStore.createdAt) {
     formData.append('updatedAt', currentDate);
@@ -201,7 +211,14 @@ const submitForm = async (event) => {
   }
 
   await cardStore.dispatch('createNewCard', formData);
+  await router.push('/tabs/tab1');
+  setOpen(false);
+  console.log('form submitted !')
 };
+
+onMounted(async () => {
+  await cardStore.dispatch('getNewCards');
+});
 
 </script>
 

@@ -13,11 +13,13 @@ export const store = createStore({
         email: '',
         token: '',
         userId: '',
+        message: '',
         loggedIn: false, // Начальное значение изменено на false, так как изначально пользователь не вошел
     },
     getters: {
-        getState: (state) => state,
         isLoggedIn: (state) => state.loggedIn,
+        getUserId: (state) => state.userId,
+        getUserMessage: (state) => state.message,
     },
     mutations: {
         // Мутация для обновления данных пользователя
@@ -34,6 +36,9 @@ export const store = createStore({
             state.token = '';
             state.loggedIn = false;
         },
+        clearUserMessage(state) {
+            state.message = '';
+        }
     },
     actions: {
         async initializeUser({ commit }) {

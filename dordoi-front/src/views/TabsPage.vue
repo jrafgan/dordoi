@@ -30,7 +30,7 @@
 <script setup>
 import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
 import { home, square, logIn, logOut } from 'ionicons/icons';
-import { store } from '@/stores/userStore';
+import {store} from '@/stores/userStore';
 
 const userStore = store;
 

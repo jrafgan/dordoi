@@ -1,11 +1,34 @@
 <template>
   <div class="card-container">
-    <Card/>
+    <CardInfo v-if='card' :card='card'/>
+    <Card :cards="cards"/>
   </div>
 </template>
 
 <script setup>
 import Card from "./Card.vue";
+import CardInfo from "./CardInfo.vue";
+import {computed} from "vue";
+import {cardStore} from "../stores/cardStore";
+
+const allCards = computed(() => cardStore.getters.getAllCards);
+const searchedCards = computed(() => cardStore.getters.getSearchedCards);
+const selectedCard = computed(() => cardStore.getters.getSelectedCard);
+
+const cards = computed(() => {
+  if (searchedCards.value.length > 0) {
+    return searchedCards.value;
+  } else {
+    return allCards.value;
+  }
+});
+
+const card = computed(() => {
+  if (selectedCard) {
+    return selectedCard.value;
+  }
+})
+
 </script>
 
 <style scoped>

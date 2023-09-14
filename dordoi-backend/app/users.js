@@ -1,13 +1,8 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const router = express.Router();
 const authMiddl = require('../middleware/auth');
-const config = require('../config');
-
-const createToken = (userId) => {
-    return jwt.sign({ userId }, config.jwtSecret, { expiresIn: '3h' });
-};
+const { createToken } = require("../middleware/functions");
 
 router.post('/register', async (req, res) => {
     console.log('req body : ', req.body);

@@ -7,8 +7,10 @@ const Card = require('../models/Card');
 const router = express.Router();
 const permit = require('../middleware/permit');
 const auth = require('../middleware/auth')
-const jwt = require("jsonwebtoken");
 const SKU = require("../models/SKU");
+const { searchCardsByKeywords } = require("../middleware/functions");
+const { uniqueSku  } = require("../middleware/functions");
+const { createToken } = require("../middleware/functions");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -19,55 +21,42 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage });
-
-const createToken = (userId) => {
-    return jwt.sign({ userId }, config.jwtSecret, { expiresIn: '3h' });
-};
-
-async function uniqueSku(length) {
-    let sku = '';
-    let isUnique = false;
-
-    // Генерируем артикул до тех пор, пока не найдем уникальный
-    while (!isUnique) {
-        // sku = nanoid(12); // Генерируем случайный артикул из 12 символов
-
-        const characters = '0123456789';
-
-        for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * characters.length);
-            sku += characters[randomIndex];
-        }
-
-        // Проверяем, есть ли артикул в базе данных
-        const existingSKU = await SKU.findOne({ sku });
-
-        if (!existingSKU) {
-            isUnique = true; // Артикул уникален
-        }
-        const yu = await SKU.find()
-        console.log('existing SKU : ', yu);
-    }
-    return sku;
-}
+const upload = multer({ storage }); //get all cards
 
 router.get('/', async (req, res) => {
     try {
         const cards = await Card.find();
-        res.send(cards);
+        res.send({ cards });
     } catch (e) {
         res.status(500).send(e);
     }
 });
 
-router.get('/:id', auth, async (req, res) => {
+router.get('/user/:id', auth, async (req, res) => {
     try {
-        const card = await Card.findById(req.params.id);
-        if (card) {
-            res.send(card);
+        const userId = req.params.id;
+
+        // Используйте userId в запросе к базе данных для поиска карточек, связанных с этим пользователем
+        const cards = await Card.find({ user: userId });
+        const newToken = createToken(userId);
+        const user = { _id: userId };
+        res.send({ token: newToken,  message: 'Cards found !',  user, cards });
+    } catch (e) {
+        res.status(500).send(e);
+    }
+});
+
+router.get('/search', async (req, res) => {
+    try {
+        const keyword = req.query.keyword;
+        console.log('req query : ', keyword);
+        const cards = await Card.find();
+        const foundCards = searchCardsByKeywords(cards, keyword)
+
+        if (foundCards) {
+            res.send({ cards: foundCards });
         } else {
-            res.sendStatus(404);
+            res.send({ message: 'По вашему запросу ничего не найдено !'});
         }
     } catch (e) {
         res.status(500).send(e);
@@ -78,7 +67,7 @@ router.post('/', auth, upload.array('images'), async (req, res) => {
     try {
         const cardData = req.body;
         const uploadedFiles = req.files;
-        let sku = await uniqueSku(12);
+        let sku = await  uniqueSku(12);
 
         console.log('req body : ', cardData);
         console.log('req files : ', req.files);
@@ -106,6 +95,7 @@ router.post('/', auth, upload.array('images'), async (req, res) => {
             user: cardData.user,
             selectedImages: selectedImages,
             types: cardData.types,
+            price: cardData.price,
             sku,
             createdAt: cardData.createdAt,
             updatedAt: cardData.updatedAt || null
@@ -129,32 +119,38 @@ router.post('/', auth, upload.array('images'), async (req, res) => {
 });
 
 
-router.delete('/', [auth, permit('admin')], async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     try {
-        const id = req.query.id;
-
+        const id = req.params.id;
+        const userId = req.query.user; // Получить идентификатор пользователя из запроса
+        console.log('req user : ', userId);
         if (!id) {
-            return res.status(400).send('Missing id parameter');
+            return res.status(400).send({ message: 'Missing id parameter' });
         }
 
         const card = await Card.findById(id);
 
         if (!card) {
-            return res.status(404).send('Card not found');
+            return res.status(404).send({ message: 'Card not found' });
         }
 
-        await card.remove();
+        // Проверить, является ли текущий пользователь владельцем карточки
+        if (card.user.toString() !== userId) {
+            return res.status(403).send({ message: 'Unauthorized - You do not own this card' });
+        }
 
-        // После удаления карточки, выберите все карточки и отправьте их клиенту
+        // Если пользователь - владелец карточки, тогда производим удаление
+        await Card.deleteOne({ _id: id })
+
+        const newToken = createToken(card.user);
+        const user = { _id: card.user };
+
         const cards = await Card.find();
-        res.status(204).send(cards);
+        res.status(200).send({ cards, message: 'Card deleted!', user, token: newToken });
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
     }
 });
-
-
-
 
 module.exports = router;

@@ -8,13 +8,44 @@ export async function getReq(endpoint, token) {
         const headers = {
             Authorization: token ? `Bearer ${token}` : undefined,
         };
-        console.log('getReq in action...')
         return await axios.get(endpoint, token ? { headers } : null);
     } catch (e) {
         throw e;
     }
 }
 
+export async function deleteReq(endpoint, token) {
+    try {
+        const headers = {
+            Authorization: `Bearer ${token}`,
+        };
+        console.log('deleteReq in action...')
+        return await axios.delete(endpoint, { headers });
+    } catch (e) {
+        throw e;
+    }
+}
+
+export async function putReq(endpoint, data, token, isFormData = false) {
+    try {
+
+        const headers = {
+            Authorization: `Bearer ${token}`,
+        };
+
+        if (data instanceof FormData) {
+            headers['Content-Type'] = 'multipart/form-data';
+        } else {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        return await axios.put(endpoint, data, {
+            headers,
+        });
+    } catch (e) {
+        throw e;
+    }
+}
 
 // Функция для выполнения POST-запросов
 export async function postReq(endpoint, data, token, isFormData = false) {
@@ -66,15 +97,6 @@ export async function sendRequest(commit, {
 }) {
     try {
         let response;
-        console.log('props : ', commit, {
-            method,
-            endpoint,
-            data,
-            successCallback,
-            errorCallback,
-            mutation,
-            token,
-        })
         switch (method.toUpperCase()) {
             case 'POST':
                 response = await postReq(endpoint, data, token);
@@ -82,18 +104,24 @@ export async function sendRequest(commit, {
             case 'GET':
                 response = await getReq(endpoint, token);
                 break;
+            case 'DELETE':
+                response = await deleteReq(endpoint, token);
+                break;
+            case 'PUT':
+                response = await putReq(endpoint, token);
+                break;
             // Добавьте обработку других методов, если необходимо
             default:
                 throw new Error('Неподдерживаемый метод запроса');
         }
-
         if (response.status === 200) {
             const responseData = response.data;
-            console.log('server response : ', responseData);
+
             if (mutation) {
                 // Если указана мутация, вызываем ее
                 commit(mutation, responseData);
                 console.log('mutation : ', mutation);
+                console.log('server response : ', responseData);
             }
 
             // Вызываем callback для успешного запроса
