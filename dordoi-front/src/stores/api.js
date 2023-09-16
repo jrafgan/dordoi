@@ -19,7 +19,6 @@ export async function deleteReq(endpoint, token) {
         const headers = {
             Authorization: `Bearer ${token}`,
         };
-        console.log('deleteReq in action...')
         return await axios.delete(endpoint, { headers });
     } catch (e) {
         throw e;

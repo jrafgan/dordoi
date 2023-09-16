@@ -33,8 +33,8 @@ const run = async () => {
             image: "margaret.jpeg",
         },
         {
-            email: "mark@gmail.com",
-            password: "123",
+            email: "mark@gmail.com",ZQKm7e4oB850PaFk6j iC256JA0Hf7mSdprK3
+            password: "123",node -v
             username: "Mark",
             role: "user",
             image: "mark.jpeg"

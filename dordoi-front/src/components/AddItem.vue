@@ -91,7 +91,6 @@
           <img :src="urls[index]" alt="Изображение" class="image">
         </div>
       </div>
-
       <br/>
       <br/>
       <ion-button type="submit" expand="full">Создать товар</ion-button>

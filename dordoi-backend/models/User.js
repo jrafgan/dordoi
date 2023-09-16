@@ -10,17 +10,7 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
   username: {
     type: String,
-    required: true,
-    unique: true,
-    validate: {
-      // Пользовательская валидация для проверки уникальности имени пользователя
-      validator: async function(value) {
-        if (!this.isModified('username')) return; // Проверка, если имя пользователя не было изменено
-        const user = await User.findOne({username: value});
-        if (user) throw new Error(); // Если найден пользователь с таким именем, выбрасываем ошибку
-      },
-      message: 'This username is already taken '
-    }
+    required: true
   },
   password: {
     type: String,
@@ -28,7 +18,16 @@ const UserSchema = new Schema({
   },
   email: {
     type: String,
-    required: true
+    required: true,
+    unique: true, // Добавляем проверку уникальности для email
+    validate: {
+      // Пользовательская валидация для проверки уникальности email
+      validator: async function (value) {
+        if (!this.isModified('email')) return; // Проверка, если email не был изменен
+        const user = await User.findOne({ email: value });
+        if (user) throw new Error('This email is already registered'); // Если найден пользователь с таким email, выбрасываем ошибку
+      }
+    }
   },
   role: {
     type: String,
@@ -39,18 +38,13 @@ const UserSchema = new Schema({
   image: {
     type: String
   }
-
 });
+
 
 // Метод для проверки пароля
 UserSchema.methods.checkPassword = function(password) {
   return bcrypt.compare(password, this.password);
 };
-
-// Метод для генерации токена
-// UserSchema.methods.generateToken = function() {
-//   this.token = nanoid();
-// };
 
 // Middleware, выполняющийся перед сохранением пользователя
 UserSchema.pre('save', async function(next) {
