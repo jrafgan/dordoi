@@ -817,8 +817,7 @@ const bazaarNames = [
     {name: 'Торговый центр'},
     {name: 'Швейный цех'},
 ];
-const jashyruunAchkych = 'kanaatandyrylbagandardansynarsyzby';
-
-const lsKey = 'maalymat'
+const jashyruunAchkych = process.env.VITE_APP_JASHYRUUN_ACHKYCH;
+const lsKey = process.env.VITE_APP_LS_KEY;
 
 export { catalog, bazaarNames, jashyruunAchkych, lsKey };

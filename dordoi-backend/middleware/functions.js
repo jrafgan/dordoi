@@ -1,9 +1,12 @@
 const SKU = require("../models/SKU");
 const jwt = require("jsonwebtoken");
 const config = require('../config');
+require('dotenv').config({ path: path.resolve(__dirname, `.env.${process.env.NODE_ENV}`) });
+
+const duration = process.env.JWT_EXPIRATION_TIME;
 
 const createToken = (userId) => {
-    return jwt.sign({userId}, config.jwtSecret, {expiresIn: '3h'});
+    return jwt.sign({userId}, config.jwtSecret, {expiresIn: duration});
 };
 
 async function uniqueSku(length) {

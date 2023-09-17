@@ -1,10 +1,6 @@
 const mongoose = require("mongoose");
 const config = require("./config");
-// const Card = require("./models/Card");
-// const Rating = require("./models/Rating");
 const User = require("./models/User");
-// const Image = require("./models/Image");
-const nanoid = require("nanoid");
 
 const run = async () => {
     await mongoose.connect(config.dbUrl, config.mongoOptions);
@@ -33,8 +29,8 @@ const run = async () => {
             image: "margaret.jpeg",
         },
         {
-            email: "mark@gmail.com",ZQKm7e4oB850PaFk6j iC256JA0Hf7mSdprK3
-            password: "123",node -v
+            email: "mark@gmail.com",
+            password: "123",
             username: "Mark",
             role: "user",
             image: "mark.jpeg"

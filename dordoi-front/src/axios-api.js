@@ -1,5 +1,9 @@
 import  axios from 'axios';
-const apiURL = 'http://localhost:8003';
+let apiURL = process.env.VITE_APP_API_URL_PRODUCTION;
+
+if (process.env.NODE_ENV === 'development') {
+    apiURL = 'http://localhost:8003';
+}
 
 const instance = axios.create({
     baseURL: apiURL,
